@@ -36,7 +36,7 @@ import pygame
 ## Task list:
 - [x] Face detection
 - [x] Landmark detection
-- [ ] Drowsiness detection
+- [x] Drowsiness detection
 - [ ] Face recognition
 
 ## Aditional information:
