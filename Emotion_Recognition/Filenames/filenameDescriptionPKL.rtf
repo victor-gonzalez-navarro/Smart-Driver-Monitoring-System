@@ -1,0 +1,47 @@
+filename.pkl:
+	1) Has as data the x coordinate and the y coordinate of each landmark.
+	2) Has as data le distance from each landmark to the center of gravity.
+	3) Has as data the angle from each landmark to the center of gravity.
+	4) Error de Paul
+	5) It is trained as:\
+	clf = SVC(kernel='linear', probability=True,tol=1e-3)
+
+filename2.pkl:
+	1) Has as data the distance from each landmark to the center of gravity.
+	2) Has as data the angle from each landmark to the center of gravity.
+	3) Error de Paul
+	4) It is trained as:
+	clf = SVC(kernel='linear', probability=True, tol=1e-3)
+
+
+(el mejor)
+filename3.pkl:
+	1) Has as data the distance from each landmark to the center of gravity.
+	2) Has as data the angle from each landmark to the center of gravity.
+	3) Error de Paul
+	4) It is trained as:
+	clf = SVC(C=1.0, kernel='rbf', degree=3, gamma='auto', coef0=0.0, shrinking=True, probability=True, tol=0.001, class_weight=None, verbose=False, max_iter=-1, decision_function_shape='ovr', random_state=None)
+
+
+filename4.pkl:
+	1) Has as data the distance from each landmark to the center of gravity.
+	2) Has as data the angle from each landmark to the center of gravity.
+	3) Sin error de Paul
+	4) It is trained as:
+	clf = SVC(C=5.0, kernel='rbf', degree=5, gamma='auto', coef0=0.0, shrinking=True, probability=True, tol=0.001, class_weight='balanced', verbose=False, max_iter=-1, decision_function_shape='ovr', random_state=None)
+
+
+filename5.pkl:
+	1) Has as data the distance from each landmark to the center of gravity.
+	2) Has as data the angle from each landmark to the center of gravity.
+	3) Sin error de Paul
+	4) It is trained as:
+	clf = SVC(C=1.0, kernel='rbf', degree=5, gamma='auto', coef0=0.0, shrinking=True, probability=True, tol=0.001, class_weight='balanced', verbose=False, max_iter=-1, decision_function_shape='ovr', random_state=None)
+
+
+filename6.pkl:
+	1) Has as data the distance from each landmark to the center of gravity.
+	2) Has as data the angle from each landmark to the center of gravity.
+	3) Sin error de Paul
+	4) It is trained as:
+	clf = SVC(C=1.0, kernel='rbf', degree=3, gamma='auto', coef0=0.0, shrinking=True, probability=True, tol=0.001, class_weight='balanced', verbose=False, max_iter=-1, decision_function_shape='ovr', random_state=None)
