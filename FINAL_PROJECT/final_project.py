@@ -142,7 +142,7 @@ clf = joblib.load("/Users/Victor/Dektop/SDMS/FINAL_PROJECT/FilenamesF/filenameNe
 initime = time.time()
 # Initialize dlib's face detector and then create the facial landmark predictor
 detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor("/Users/Victor/Dektop/SDMS/FINAL_PROJECT/shape_predictor_68_face_landmarks.dat")
+predictor = dlib.shape_predictor("/Users/Victor/Dektop/SDMS/FINAL_PROJECT/Ficheros/shape_predictor_68_face_landmarks.dat")
 
 cap = cv2.VideoCapture(0)
 # cap = cv2.VideoCapture(1) in case we want to use an external camera
@@ -159,10 +159,11 @@ MAX_CONSECUTIVE_FRAMES = 10
 consecutive_frames = 0
 
 # For the resize image:
-cf = 4
+cf = 2
 
 # variables for face rec
 numa = 0
+prediction_probs = 2
 
 while(True):
     # Capture frame-by-frame. The ret parameter is useful
@@ -199,13 +200,21 @@ while(True):
         shape = shape_to_coords(shape)
 
         # convert dlib's rectangle to a OpenCV-style bounding box
-        (x, y, w, h) = to_help_opencv(rect)
+        (x1, y1, w1, h1) = to_help_opencv(rect)
+        y1 = y1-45
+        h1 = h1 + 44
+
+        if (y1 < 0):
+            y1=1
+        if(h1<0):
+            h1 = 1
+
         # draw the face bounding box
         # parameters: image, one vertex, opposite vertex, color, thickness
-        cv2.rectangle(image, (cf*x, cf*y), (cf*x + cf*w, cf*y + cf*h), (0, 255, 0), 2)
+        cv2.rectangle(image, (cf*x1, cf*y1), (cf*x1 + cf*w1, cf*y1 + cf*h1), (0, 255, 0), 2)
 
         # show the face number
-        cv2.putText(image, "Face #{}".format(i+1), (cf*x - 10, cf*y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        cv2.putText(image, "Face #{}".format(i+1), (cf*x1 - 10, cf*y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
         # loop over the (x, y)-coordinates for the facial landmarks and draw a point on the image
         for (x, y) in shape:
@@ -219,7 +228,7 @@ while(True):
         if consecutive_frames > MAX_CONSECUTIVE_FRAMES:
             '''# winsound.PlaySound('woow_x.wav', winsound.SND_FILENAME)'''
             pygame.init()
-            alarma = pygame.mixer.Sound("/Users/Victor/Dektop/SDMS/FINAL_PROJECT/guau.wav")
+            alarma = pygame.mixer.Sound("/Users/Victor/Dektop/SDMS/FINAL_PROJECT/Ficheros/guau.wav")
             alarma.play()
 
         # Blinking frequency
@@ -240,11 +249,18 @@ while(True):
         #------------------------------------------------------------------------------------------------------------
         # FACE RECOGNITION
         numa = numa +1
-        if (numa % 100 == 0):
+        if (numa % 20 == 0):
             test_data = []
 
 
-            imq = scipy.misc.imresize(gray, (266, 266), interp='bilinear', mode=None)
+            grayl = gray[y1:y1+h1,x1:x1+w1]
+
+
+            # cv2.imshow('image', grayl)
+            # cv2.waitKey(0)
+            # cv2.destroyAllWindows()
+
+            imq = scipy.misc.imresize(grayl, (266, 266), interp='bilinear', mode=None)
             clahe_image = clahe.apply(imq)
 
 
@@ -256,7 +272,7 @@ while(True):
 
             ##################################################################################################################
             # R E D U C I R     C A R A C T E R I S T I C A S
-            pca = joblib.load("/Users/Victor/Dektop/SDMS/FINAL_PROJECT/pca2.pkl")
+            pca = joblib.load("/Users/Victor/Dektop/SDMS/FINAL_PROJECT/PCA/pca2.pkl")
             test_data = pca.transform(test_data)
 
             ##################################################################################################################
@@ -266,8 +282,12 @@ while(True):
             prediction = clf.predict(npar_train)
             print('Probabilities', prediction_probs)
             print "\nBienvenido al coche ", emotions[numpy.argmax(prediction_probs)]
+            cv2.putText(image, "Bienvenido al coche #{}".format(emotions[numpy.argmax(prediction_probs)]), (20, 350), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 100, 255), 2)
 
-        #------------------------------------------------------------------------------------------------------------
+
+        cv2.putText(image, "Bienvenido al coche #{}".format(emotions[numpy.argmax(prediction_probs)]), (20, 350), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 100, 255), 2)
+
+            #------------------------------------------------------------------------------------------------------------
 
 
 
