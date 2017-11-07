@@ -71,7 +71,7 @@ def processing1(shape, counter, eyelid_down, consecutive_frames):
 
 # Function 5: Face Recognition
 # Cambiarlo tanto en train como en test
-emotions = ["CR","Jobs", "Messi"]  # Emotion list
+emotions = ["Alex","AlexTel", "Victor"]  # Emotion list
 data = {}
 
 def get_landmarks_not(image):
@@ -144,7 +144,7 @@ initime = time.time()
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("/Users/Victor/Dektop/SDMS/FINAL_PROJECT/Ficheros/shape_predictor_68_face_landmarks.dat")
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 # cap = cv2.VideoCapture(1) in case we want to use an external camera
 
 
@@ -159,7 +159,10 @@ MAX_CONSECUTIVE_FRAMES = 10
 consecutive_frames = 0
 
 # For the resize image:
+##########################################
+# Si lo cambio, cambia h1 e w1!
 cf = 2
+##########################################
 
 # variables for face rec
 numa = 0
@@ -201,8 +204,9 @@ while(True):
 
         # convert dlib's rectangle to a OpenCV-style bounding box
         (x1, y1, w1, h1) = to_help_opencv(rect)
-        y1 = y1-45
-        h1 = h1 + 44
+        y1 = y1 - 50
+        h1 = h1 + 55
+        #print(h1)
 
         if (y1 < 0):
             y1=1
@@ -255,10 +259,11 @@ while(True):
 
             grayl = gray[y1:y1+h1,x1:x1+w1]
 
-
-            # cv2.imshow('image', grayl)
-            # cv2.waitKey(0)
-            # cv2.destroyAllWindows()
+            # BOOOOOOORRRRRRRRAAAAAAARRRRRRRRR
+            #cv2.imshow('image', grayl)
+            #cv2.imwrite('messigray.png', grayl)
+            #cv2.waitKey(0)
+            #cv2.destroyAllWindows()
 
             imq = scipy.misc.imresize(grayl, (266, 266), interp='bilinear', mode=None)
             clahe_image = clahe.apply(imq)
@@ -280,9 +285,8 @@ while(True):
             npar_train = np.array(test_data)
             prediction_probs = clf.predict_proba(npar_train)
             prediction = clf.predict(npar_train)
-            print('Probabilities', prediction_probs)
-            print "\nBienvenido al coche ", emotions[numpy.argmax(prediction_probs)]
-            cv2.putText(image, "Bienvenido al coche #{}".format(emotions[numpy.argmax(prediction_probs)]), (20, 350), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 100, 255), 2)
+            #print('Probabilities', prediction_probs)
+            #print "\nBienvenido al coche ", emotions[numpy.argmax(prediction_probs)]
 
 
         cv2.putText(image, "Bienvenido al coche #{}".format(emotions[numpy.argmax(prediction_probs)]), (20, 350), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 100, 255), 2)

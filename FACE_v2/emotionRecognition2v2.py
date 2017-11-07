@@ -10,28 +10,33 @@ from sklearn.decomposition import PCA
 from PIL import Image
 import numpy
 import Image
+from sklearn.model_selection import cross_val_score
+from sklearn.metrics import confusion_matrix
+
 
 
 # Cambiarlo tanto en train como en test
-emotions = ["CR","Jobs", "Messi"]  # Emotion list
+emotions = ["Alex","AlexTel", "Victor"]  # Emotion list
 
 clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(
     "shape_predictor_68_face_landmarks.dat")  # Or set this to whatever you named the downloaded file
 
-#clf = SVC(kernel='linear', probability=True, tol=1e-3)  # , verbose = True) #Set the classifier as a support vector machines with polynomial kernel
-#clf = SVC(C=1.0, kernel='rbf', degree=3, gamma='auto', coef0=0.0, shrinking=True, probability=True, tol=0.001, class_weight=None, verbose=False, max_iter=-1, decision_function_shape='ovr', random_state=None)
-#clf = SVC(C=5.0, kernel='rbf', degree=5, gamma='auto', coef0=0.0, shrinking=True, probability=True, tol=0.001, class_weight='balanced', verbose=False, max_iter=-1, decision_function_shape='ovr', random_state=None)
-#clf = SVC(C=1.0, kernel='rbf', degree=5, gamma='auto', coef0=0.0, shrinking=True, probability=True, tol=0.001, class_weight='balanced', verbose=False, max_iter=-1, decision_function_shape='ovr', random_state=None)
-#clf = SVC(C=1.0, kernel='rbf', degree=3, gamma='auto', coef0=0.0, shrinking=True, probability=True, tol=0.001, class_weight='balanced', verbose=False, max_iter=-1, decision_function_shape='ovr', random_state=None)
-clf = SVC(kernel='linear', probability=True, tol=1e-3)  # , verbose = True) #Set the classifier as a support vector machines with polynomial kernel
+
+# --------------------------------------------------------------------
+#clf = SVC(kernel='linear', probability=True, tol=1e-3)
+clf = SVC(kernel='rbf', class_weight='balanced', C=1e7, gamma=0.0000000001)# clf = SVC(kernel='linear', probability=True, tol=1e-7)
+# clf = SVC(kernel='linear', probability=False, tol=1e-7)
+# clf = SVC(kernel='rbf', probability=False, tol=1e-7)
+# clf = SVC(kernel='linear', probability=True, tol=1e+20)
+# clf = SVC(C=1.0, cache_size=200, class_weight=None, coef0=0.0, decision_function_shape='ovr', degree=3, gamma='auto', kernel='rbf', max_iter=-1, probability=False, random_state=None, shrinking=True, tol=0.001, verbose=False)
+# --------------------------------------------------------------------
 
 
 data = {}  # Make dictionary for all values
 
 
-# data['landmarks_vectorised'] = []
 
 def get_files(emotion):  # Define function to get file list, randomly shuffle it and split 80/20
     files = glob.glob("dataset3//%s//*" % emotion)
@@ -72,10 +77,13 @@ def make_sets():
 
             img = Image.open(item)
             img = img.resize((266, 266), Image.BILINEAR)
+
             image = np.asarray(img)
 
-            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # convert to grayscale
-            clahe_image = clahe.apply(gray)
+            # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # convert to grayscale
+
+            #clahe_image = clahe.apply(gray)
+            clahe_image = clahe.apply(image)
 
 
             get_landmarks(clahe_image)
@@ -93,8 +101,12 @@ def make_sets():
             img = img.resize((266, 266), Image.BILINEAR)
             image = np.asarray(img)
 
-            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            clahe_image = clahe.apply(gray)
+            #gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            #clahe_image = clahe.apply(gray)
+
+            clahe_image = clahe.apply(image)
+
+
             get_landmarks(clahe_image)
             if data['landmarks_vectorised'] == "error":
                 print("no face detected on this one")
@@ -130,18 +142,30 @@ for i in range(0, 10):
 
     npar_train = np.array(training_data) # Turn the training set into a numpy array for the classifier
     npar_trainlabs = np.array(training_labels)
-    print("training SVM linear %s" % i)  # train SVM
+    print("training SVM %s" % i)  # train SVM
     clf.fit(npar_train, training_labels)
 
     print("getting accuracies %s" % i)  # Use score() function to get accuracy
     npar_pred = np.array(prediction_data)
+
+
     pred_lin = clf.score(npar_pred, prediction_labels)
     print "linear: ", pred_lin
     accur_lin.append(pred_lin)  # Store accuracy in a list
+
+    #print(training_labels)
+    #print(prediction_labels)
+    #clf = clf.fit(training_data, training_labels)
+    #y_pred = clf.predict(prediction_data)
+    #y_test = prediction_labels
+    #print(confusion_matrix(y_test, y_pred, labels=range(3)))
 
 print("Mean value lin svm: %s" % np.mean(accur_lin))  # FGet mean accuracy of the 10 runs
 
 # http://www.paulvangent.com/2016/08/05/emotion-recognition-using-facial-landmarks/
 
 #########################################################################################
+
 joblib.dump(clf,'filenameNew.pkl')
+
+
