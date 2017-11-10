@@ -12,7 +12,7 @@ import numpy
 import Image
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import confusion_matrix
-
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
 
 # Cambiarlo tanto en train como en test
@@ -31,6 +31,8 @@ clf = SVC(kernel='rbf', class_weight='balanced', C=1e7, gamma=0.0000000001)# clf
 # clf = SVC(kernel='rbf', probability=False, tol=1e-7)
 # clf = SVC(kernel='linear', probability=True, tol=1e+20)
 # clf = SVC(C=1.0, cache_size=200, class_weight=None, coef0=0.0, decision_function_shape='ovr', degree=3, gamma='auto', kernel='rbf', max_iter=-1, probability=False, random_state=None, shrinking=True, tol=0.001, verbose=False)
+
+# https://www.youtube.com/watch?v=m2a2K4lprQw
 # --------------------------------------------------------------------
 
 
@@ -124,6 +126,7 @@ def make_sets():
     training_data = pca.transform(training_data)
     prediction_data = pca.transform(prediction_data)
 
+
     ##################################################################################################################
 
     return training_data, training_labels, prediction_data, prediction_labels
@@ -169,3 +172,4 @@ print("Mean value lin svm: %s" % np.mean(accur_lin))  # FGet mean accuracy of th
 joblib.dump(clf,'filenameNew.pkl')
 
 
+print("Recordatorio: has escogido un valor de parametros igual a 150 y a un tamanyo de las imagenes de 266 por 266")

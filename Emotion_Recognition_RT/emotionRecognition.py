@@ -13,10 +13,14 @@ clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("/Users/Victor/Dektop/SDMS/Emotion_Recognition_RT/shape_predictor_68_face_landmarks.dat")
 
-#clf = SVC(kernel='linear', probability=True, tol=1e-3)  # , verbose = True) #Set the classifier as a support vector machines with polynomial kernel
-#clf = SVC(C=1.0, kernel='rbf', degree=3, gamma='auto', coef0=0.0, shrinking=True, probability=True, tol=0.001, class_weight=None, verbose=False, max_iter=-1, decision_function_shape='ovr', random_state=None)
-#clf = SVC(C=5.0, kernel='rbf', degree=5, gamma='auto', coef0=0.0, shrinking=True, probability=True, tol=0.001, class_weight='balanced', verbose=False, max_iter=-1, decision_function_shape='ovr', random_state=None)
-#clf = SVC(C=1.0, kernel='rbf', degree=5, gamma='auto', coef0=0.0, shrinking=True, probability=True, tol=0.001, class_weight='balanced', verbose=False, max_iter=-1, decision_function_shape='ovr', random_state=None)
+# clf = SVC(kernel='linear', probability=True, tol=1e-3)  # , verbose = True) #Set the classifier as a support vector
+# machines with polynomial kernel
+# clf = SVC(C=1.0, kernel='rbf', degree=3, gamma='auto', coef0=0.0, shrinking=True, probability=True, tol=0.001, class_
+# weight=None, verbose=False, max_iter=-1, decision_function_shape='ovr', random_state=None)
+# clf = SVC(C=5.0, kernel='rbf', degree=5, gamma='auto', coef0=0.0, shrinking=True, probability=True, tol=0.001, class_
+# weight='balanced', verbose=False, max_iter=-1, decision_function_shape='ovr', random_state=None)
+# clf = SVC(C=1.0, kernel='rbf', degree=5, gamma='auto', coef0=0.0, shrinking=True, probability=True, tol=0.001, class_
+# weight='balanced', verbose=False, max_iter=-1, decision_function_shape='ovr', random_state=None)
 clf = SVC(C=1.0, kernel='rbf', degree=3, gamma='auto', coef0=0.0, shrinking=True, probability=True, tol=0.001, class_weight='balanced', verbose=False, max_iter=-1, decision_function_shape='ovr', random_state=None)
 
 
@@ -50,13 +54,13 @@ def get_landmarks(image):
 
         landmarks_vectorised = []
         for x, y, w, z in zip(xcentral, ycentral, xlist, ylist):
-            #landmarks_vectorised.append(w)
-            #landmarks_vectorised.append(z)
+            # landmarks_vectorised.append(w)
+            # landmarks_vectorised.append(z)
             meannp = np.asarray((ymean, xmean))
             coornp = np.asarray((z, w))
             dist = np.linalg.norm(coornp - meannp)
             landmarks_vectorised.append(dist)
-            #landmarks_vectorised.append(int(math.atan((y - ymean) / (x - xmean)) * 360 / math.pi))
+            # landmarks_vectorised.append(int(math.atan((y - ymean) / (x - xmean)) * 360 / math.pi))
             landmarks_vectorised.append(int(math.atan((y) / (x+0.0001)) * 360 / (2*math.pi)))
 
         data['landmarks_vectorised'] = landmarks_vectorised

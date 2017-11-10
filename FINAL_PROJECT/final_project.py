@@ -57,16 +57,16 @@ def processing1(shape, counter, eyelid_down, consecutive_frames):
 
     ear = (left_ear + right_ear) / 2
 
-    if ear < 0.22 and eyelid_down == False:
+    if ear < 0.24 and eyelid_down == False:
         eyelid_down = True
         counter += 1
-    elif ear < 0.22 and eyelid_down == True:
+    elif ear < 0.24 and eyelid_down == True:
         consecutive_frames += 1
-    elif ear > 0.22 and eyelid_down == True:
+    elif ear > 0.24 and eyelid_down == True:
         eyelid_down = False
         consecutive_frames = 0
 
-    cv2.putText(image, "Counter #{}".format(counter), (20, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 100, 255),2)
+    cv2.putText(image, "Blinking Counter #{}".format(counter), (20, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 100, 255),2, 16)
     return counter, eyelid_down, consecutive_frames
 
 # Function 5: Face Recognition
@@ -110,30 +110,20 @@ def get_landmarks_not(image):
 
 ##################################---MAIN PROGRAM---############################################
 # Import the required libraries
-import numpy as np
-import dlib
-import cv2
 import time
-#import winsound
 import pygame
-from PIL import Image
 import cv2
-import glob
-import random
 import math
 import numpy as np
 import dlib
-import itertools
-from sklearn.svm import SVC
 from sklearn.externals import joblib
 import numpy
-import Image
 import scipy.ndimage
 
 
 # ---------------------------------------------------------------------------------------
 clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-clf = joblib.load("/Users/Victor/Dektop/SDMS/FINAL_PROJECT/FilenamesF/filenameNew.pkl")
+clf = joblib.load('filenameNew.pkl')
 # test_data = []
 # ----------------------------------------------------------------------------------------
 
@@ -142,9 +132,9 @@ clf = joblib.load("/Users/Victor/Dektop/SDMS/FINAL_PROJECT/FilenamesF/filenameNe
 initime = time.time()
 # Initialize dlib's face detector and then create the facial landmark predictor
 detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor("/Users/Victor/Dektop/SDMS/FINAL_PROJECT/Ficheros/shape_predictor_68_face_landmarks.dat")
+predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 # cap = cv2.VideoCapture(1) in case we want to use an external camera
 
 
@@ -186,16 +176,7 @@ while(True):
 
     # loop over the face detections
     # Check who is closer to the camera and only do the detection for that face
-    '''wmax = 0
-    x = y = w = h = 0'''
     for (i, rect) in enumerate(rects):
-        '''w = rect.right() - rect.left()
-        if w > wmax:
-            wmax = w
-            shape = predictor(gray, rect)
-            shape = shape_to_coords(shape)
-            (x, y, w, h) = to_help_opencv(rect)'''
-
 
         # determine the facial landmarks for the face region by entering the B&W image and the detection of a face
         shape = predictor(gray, rect)
@@ -230,9 +211,8 @@ while(True):
 
         # Warn the driver if it is staying too much time with the eyelid down
         if consecutive_frames > MAX_CONSECUTIVE_FRAMES:
-            '''# winsound.PlaySound('woow_x.wav', winsound.SND_FILENAME)'''
             pygame.init()
-            alarma = pygame.mixer.Sound("/Users/Victor/Dektop/SDMS/FINAL_PROJECT/Ficheros/guau.wav")
+            alarma = pygame.mixer.Sound('guau.wav')
             alarma.play()
 
         # Blinking frequency
@@ -247,7 +227,7 @@ while(True):
             first = False
         elif actualtime % 10 != 0:
             first = True
-        cv2.putText(image, "Blinking Mean {}".format(mean), (20, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (138, 25, 0), 2)
+        #cv2.putText(image, "Blinking Mean {}".format(mean), (20, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (138, 25, 0), 2)
 
 
         #------------------------------------------------------------------------------------------------------------
@@ -277,7 +257,7 @@ while(True):
 
             ##################################################################################################################
             # R E D U C I R     C A R A C T E R I S T I C A S
-            pca = joblib.load("/Users/Victor/Dektop/SDMS/FINAL_PROJECT/PCA/pca2.pkl")
+            pca = joblib.load('pca2.pkl')
             test_data = pca.transform(test_data)
 
             ##################################################################################################################
@@ -289,7 +269,7 @@ while(True):
             #print "\nBienvenido al coche ", emotions[numpy.argmax(prediction_probs)]
 
 
-        cv2.putText(image, "Bienvenido al coche #{}".format(emotions[numpy.argmax(prediction_probs)]), (20, 350), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 100, 255), 2)
+        cv2.putText(image, "Bienvenido al coche #{}".format(emotions[numpy.argmax(prediction_probs)]), (20, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
 
             #------------------------------------------------------------------------------------------------------------
 

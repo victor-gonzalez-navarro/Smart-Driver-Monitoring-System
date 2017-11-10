@@ -9,6 +9,7 @@ from sklearn.externals import joblib
 from sklearn.decomposition import PCA
 from PIL import Image
 import numpy
+from sklearn.model_selection import cross_val_score
 
 # Cambiarlo tanto en train como en test
 emotions = ["Messi","s20", "s21", "s22", "s23", "s24", "s25", "s26"]  # Emotion list
@@ -112,8 +113,7 @@ def make_sets():
 
 
 
-
-
+'''
 accur_lin = []
 for i in range(0, 10):
     print("Making sets %s" % i)  # Make sets by random sampling 80/20%
@@ -137,3 +137,15 @@ print("Mean value lin svm: %s" % np.mean(accur_lin))  # FGet mean accuracy of th
 
 #########################################################################################
 joblib.dump(clf,'filenameNew.pkl')
+'''
+
+training_data, training_labels, prediction_data, prediction_labels = make_sets()
+npar_train = np.array(training_data)  # Turn the training set into a numpy array for the classifier
+npar_trainlabs = np.array(training_labels)
+npar_pred = np.array(prediction_data)
+
+print(prediction_labels)
+
+scores = cross_val_score(clf, npar_pred, prediction_labels, cv=2)
+print(scores)
+print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
