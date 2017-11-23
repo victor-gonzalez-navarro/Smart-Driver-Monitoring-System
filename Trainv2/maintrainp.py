@@ -7,7 +7,7 @@ from sklearn.svm import SVC
 from sklearn.externals import joblib
 from sklearn.decomposition import PCA
 from PIL import Image
-import Image
+#import Image
 
 
 # Cambiarlo tanto en train como en test
@@ -42,7 +42,7 @@ data = {}  # Make dictionary for all values
 ##################################################################################################################################
 
 def get_files(emotion):  # Define function to get file list, randomly shuffle it and split 80/20
-    files = glob.glob("dataset//%s//*" % emotion)
+    files = glob.glob("dataset3//%s//*" % emotion)
     random.shuffle(files)
     training = files[:int(len(files) * 0.8)]  # get first 80% of file list
     prediction = files[-int(len(files) * 0.2):]  # get last 20% of file list
@@ -53,8 +53,8 @@ def get_landmarks(image):
     ################################################
 
     xlist = []
-    for i in range(1, image.shape[0]):
-        for j in range(1, image.shape[1]):
+    for i in range(1, image.shape[0]): # image.shape[0] returns number of rows
+        for j in range(1, image.shape[1]): #image.shape[1] returns number of columns
             xlist.append(float(image[i,j]))
 
 
@@ -138,7 +138,7 @@ def make_sets():
 
 
 accur_lin = []
-for i in range(0, 10):
+for i in range(0, 1):
     print("Making sets %s" % i)  # Make sets by random sampling 80/20%
     training_data, training_labels, prediction_data, prediction_labels = make_sets()
 

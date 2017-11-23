@@ -154,7 +154,7 @@ import dlib
 from sklearn.externals import joblib
 import numpy
 import scipy.ndimage
-global initime
+
 
 
 ##################################################################################################################################
@@ -168,7 +168,7 @@ clf = joblib.load('pfilenameNew.pkl')
 # ----------------------------------------------------------------------------------------
 
 
-
+global initime
 initime = time.time()
 # Initialize dlib's face detector and then create the facial landmark predictor
 detector = dlib.get_frontal_face_detector()
