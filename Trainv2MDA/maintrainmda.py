@@ -25,7 +25,7 @@ predictor = dlib.shape_predictor(
 ##################################################################################################################################
 # D I F E R E N T S     S V M
 ##################################################################################################################################
-clf = SVC(kernel='linear', probability=True, tol=1e-3)
+# clf = SVC(kernel='linear', probability=True, tol=1e-3)
 # clf = SVC(kernel='rbf', class_weight='balanced', C=1e7, gamma=0.0000000001)
 #  clf = SVC(kernel='linear', probability=True, tol=1e-7)
 # clf = SVC(kernel='linear', probability=False, tol=1e-7)
@@ -71,7 +71,7 @@ def make_sets():
     prediction_data = []
     prediction_labels = []
     for emotion in emotions:
-        print(" working on %s" % emotion)
+        # print(" working on %s" % emotion)
         training, prediction = get_files(emotion)
         # Append data to training and prediction list, and generate labels 0-7
 
@@ -121,14 +121,17 @@ def make_sets():
 
 
     # R E D U C I R     C A R A C T E R I S T I C A S
-    #pca = PCA(n_components=150).fit(training_data)
-    lda = LinearDiscriminantAnalysis(n_components=150).fit(training_data,training_labels)
+    pca = PCA(n_components=150).fit(training_data)
+    # lda = LinearDiscriminantAnalysis(n_components=150).fit(training_data,training_labels)
 
-    joblib.dump(lda, 'pca.pkl')
+    joblib.dump(pca, 'pca.pkl')
+    # joblib.dump(lda, 'pca.pkl')
 
-    training_data = lda.transform(training_data)
-    prediction_data = lda.transform(prediction_data)
 
+    #training_data = lda.transform(training_data)
+    #prediction_data = lda.transform(prediction_data)
+    training_data = pca.transform(training_data)
+    prediction_data = pca.transform(prediction_data)
 
     return training_data, training_labels, prediction_data, prediction_labels
 
@@ -138,36 +141,58 @@ def make_sets():
 ##################################################################################################################################
                 # M A I N   P R O G R A M
 ##################################################################################################################################
+accur_lin2 = []
+for l in range(0,12):
+    if l == 0:
+        clf = SVC(kernel='linear', probability=True, tol=1e-3)
+    if l == 1:
+        clf = SVC(kernel='linear', probability=True, tol=1e-7)
+    if l == 2:
+        clf = SVC(kernel='linear', probability=True, tol=1e-5)
+    if l == 3:
+        clf = SVC(kernel='rbf', class_weight='balanced', C=1e7, gamma=0.0000000001)
+    if l == 4:
+        clf = SVC(kernel='rbf', class_weight='balanced', C=1e7, gamma=0.000001)
+    if l == 5:
+        clf = SVC(kernel='rbf', class_weight='balanced', C=1e7, gamma=0.001)
+    if l == 6:
+        clf = SVC(kernel='rbf', class_weight='balanced', C=1e7, gamma=0.0000001)
+    if l == 7:
+        clf = SVC(kernel='rbf', class_weight='balanced', C=1e7, gamma=0.1)
+    if l == 8:
+        clf = SVC(kernel='rbf', class_weight='balanced', C=1e4, gamma=0.0000000001)
+    if l == 9:
+        clf = SVC(kernel='rbf', class_weight='balanced', C=1e4, gamma=0.000001)
+    if l == 10:
+        clf = SVC(kernel='rbf', class_weight='balanced', C=1e4, gamma=0.001)
+    if l == 11:
+        clf = SVC(kernel='rbf', class_weight='balanced', C=1e4, gamma=0.0000001)
+    if l == 12:
+        clf = SVC(kernel='rbf', class_weight='balanced', C=1e4, gamma=0.1)
+
+    accur_lin = []
+    for i in range(0, 10):
+        print("Making sets %s" % i)  # Make sets by random sampling 80/20%
+        training_data, training_labels, prediction_data, prediction_labels = make_sets()
+
+        npar_train = np.array(training_data) # Turn the training set into a numpy array for the classifier
+        npar_trainlabs = np.array(training_labels)
+        #print("training SVM %s" % i)  # train SVM
+        clf.fit(npar_train, training_labels)
 
 
-accur_lin = []
-for i in range(0, 1):
-    print("Making sets %s" % i)  # Make sets by random sampling 80/20%
-    training_data, training_labels, prediction_data, prediction_labels = make_sets()
-
-    print("Hola")
-    npar_train = np.array(training_data) # Turn the training set into a numpy array for the classifier
-    npar_trainlabs = np.array(training_labels)
-    print("training SVM %s" % i)  # train SVM
-    clf.fit(npar_train, training_labels)
-    print("Hola")
-
-
-    print("getting accuracies %s" % i)  # Use score() function to get accuracy
-    npar_pred = np.array(prediction_data)
-    print("Hola")
+        # print("getting accuracies %s" % i)  # Use score() function to get accuracy
+        npar_pred = np.array(prediction_data)
 
 
 
-    pred_lin = clf.score(npar_pred, prediction_labels)
-    print "linear: ", pred_lin
-    accur_lin.append(pred_lin)  # Store accuracy in a list
-    print("Hola")
+        pred_lin = clf.score(npar_pred, prediction_labels)
+        # print "linear: ", pred_lin
+        accur_lin.append(pred_lin)  # Store accuracy in a list
 
-
-
-
-print("Mean value lin svm: %s" % np.mean(accur_lin))  # FGet mean accuracy of the 10 runs
+    accur_lin2.append(np.mean(accur_lin))  # Store accuracy in a list
+    print("Mean value lin svm: %s" % np.mean(accur_lin))  # FGet mean accuracy of the 10 runs
+    print("-------------------------------")
 
 
 ##################################################################################################################################

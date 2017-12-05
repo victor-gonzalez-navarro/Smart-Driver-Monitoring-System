@@ -160,16 +160,16 @@ while(True):
 
     if num == 1:
         # print('El sujeto esta enfadado')
-        cv2.putText(image, "The driver is angry", (20, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2, 16)
+        cv2.putText(image, "The driver is angry", (20, 100), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 255), 2, 16)
     elif num == 2:
         # print('El sujeto esta feliz')
-        cv2.putText(image, "The driver is happy", (20, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2, 16)
+        cv2.putText(image, "The driver is happy", (20, 100), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 255), 2, 16)
     elif num == 3:
         # print('El sujeto esta sorprendido')
-        cv2.putText(image, "The driver is surprised", (20, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2, 16)
+        cv2.putText(image, "The driver is surprised", (20, 100), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 255), 2, 16)
     else:
         # print('El sujeto esta neutral')
-        cv2.putText(image, "The driver is neutral", (20, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2, 16)
+        cv2.putText(image, "The driver is neutral", (20, 100), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 255), 2, 16)
 
 
 

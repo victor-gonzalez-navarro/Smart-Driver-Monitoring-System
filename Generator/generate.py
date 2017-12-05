@@ -40,42 +40,6 @@ def shape_to_coords(shape, dtype="int"):
     return coords
 
 
-# Function 3: Euclidian distance
-def eucli(vec):
-    res = math.sqrt(vec[0]**2 + vec[1]**2)
-    return res
-
-
-# Function 4: Processing 1
-def processing1(shape, counter, eyelid_down, consecutive_frames):
-
-    # Calculate the Eye Aspect Ratio of the left eye
-    num = (eucli(10*shape[37]-10*shape[41]) + eucli(10*shape[38]-10*shape[40]))
-    den = (2*(eucli(10*shape[36]-10*shape[39])))
-    left_ear = num/float(den)
-
-    # Calculate the Eye Aspect Ratio of the right eye
-    num = (eucli(10 * shape[43] - 10 * shape[47]) + eucli(10 * shape[44] - 10 * shape[46]))
-    den = (2 * (eucli(10 * shape[42] - 10 * shape[45])))
-    right_ear = num / float(den)
-
-    ear = (left_ear + right_ear) / 2
-
-    if ear < 0.24 and eyelid_down == False:
-        eyelid_down = True
-        counter += 1
-    elif ear < 0.24 and eyelid_down == True:
-        consecutive_frames += 1
-    elif ear > 0.24 and eyelid_down == True:
-        eyelid_down = False
-        consecutive_frames = 0
-
-    cv2.putText(image, "Blinking Counter #{}".format(counter), (20, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 100, 255),2, 16)
-    return counter, eyelid_down, consecutive_frames
-
-# Function 5: Face Recognition
-# Cambiarlo tanto en train como en test
-emotions = ["Alex","AlexTel", "Victor"]  # Emotion list
 data = {}
 def get_landmarks_not(image):
 
@@ -92,50 +56,12 @@ def get_landmarks_not(image):
 
 
 
-def yawning_detection(shape):
-    global yawnStartTime, isYawning, yawnCounter
-
-    num = (eucli(10 * shape[50] - 10 * shape[58]) + eucli(10 * shape[52] - 10 * shape[56]))
-    den = (2 * (eucli(10 * shape[48] - 10 * shape[54])))
-    yar = num / float(den)
-
-    if yar > 0.67:
-        if not isYawning:
-            isYawning = True
-            yawnStartTime = time.time()
-    else:
-        if isYawning:
-            isYawning = False
-            if (time.time() - yawnStartTime) >= AVERAGE_YAWN_TIME:
-                yawnCounter += 1
-                print(yawnCounter)
-
-    cv2.putText(image, "Yawn Counter #{}".format(yawnCounter), (20, 250), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255, 255), 2,16)
 
 
 
 # Percentage of eye closure: proportion of time for which the eyelid remains closed
 # more than 70-80% within a predefined time period
 # PERCLOS = (Number of frames that the eye is more than 70% closed in one minute / Number of frames in one minute)x100
-def perclos(ear,fps,actualtime):
-    global counterPerclos,firstTime,perClos
-
-    if ear < 0.23:
-        counterPerclos += 1
-    if (((actualtime)%10) == 0) and firstTime:
-        totalFps = 10*fps
-        perClos = (counterPerclos / (10.0*fps))
-        firstTime = False
-
-        print"Counter Perclos %s" %counterPerclos
-        #print "Total FPS %s" %totalFps
-        print "PERCLOS %.2f" %perClos
-        print("-----------------")
-
-    if (actualtime%10) == 1:
-        counterPerclos = 0
-        firstTime = True
-    # cv2.putText(image, "PERCLOS #{}".format(perClos), (20, 300), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2, 16)
 
 
 
@@ -163,13 +89,10 @@ import scipy.ndimage
 
 # ---------------------------------------------------------------------------------------
 clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-clf = joblib.load('pfilenameNew.pkl')
 # test_data = []
 # ----------------------------------------------------------------------------------------
 
 
-global initime
-initime = time.time()
 # Initialize dlib's face detector and then create the facial landmark predictor
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
@@ -209,40 +132,9 @@ numa = 0
 prediction_probs = 2
 
 
-# Yawn variables
-global yawnStartTime
-yawnStartTime = 0
 
-# Flag for testing the start time of the yawn
-global isYawning
-isYawning = False
 
-# List to hold yawn ratio count and timestamp
-yawnRatioCount = []
 
-# Yawn Counter
-global yawnCounter
-yawnCounter = 0
-
-# yawn time
-AVERAGE_YAWN_TIME = 2.6
-
-#PERCLOS
-#Counter of frames of the entire proportion of time
-global counterPerclosTotal
-counterPerclosTotal = 0
-#Counter of frames when the eyes is closed
-global counterPerclos
-counterPerclos = 0
-global perClos
-perClos =0.0
-global frameCounter
-frameCounter = 0
-global tick
-tick = 0
-global firstTime
-firstTime = True
-fps = 0
 
 
 
@@ -301,84 +193,25 @@ while(True):
             cv2.circle(image, (cf*x, cf*y), 2, (0, 0, 255), -1)
 
 
-        ##################################################################################################################################
-        # B L I N K I N G     C O U N T E R
-        ##################################################################################################################################
-        # Processing 1
-        actualtime = int(time.time()-initime)
-        counter, eyelid_down, consecutive_frames = processing1(shape, counter, eyelid_down, consecutive_frames)
-
-
-
-        ##################################################################################################################################
-        # D R O W S I N E S S     D E T E C T I O N
-        ##################################################################################################################################
-        # Warn the driver if it is staying too much time with the eyelid down
-        if consecutive_frames > MAX_CONSECUTIVE_FRAMES:
-            pygame.init()
-            alarma = pygame.mixer.Sound('guau.wav')
-            alarma.play()
-
-
-
-        ##################################################################################################################################
-        # B L I N K I N G     F R E Q U E N C Y  (not used yet)
-        ##################################################################################################################################
-
-        cv2.putText(image, "Time {}".format(actualtime), (20, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-        if (actualtime % 10 == 0) and (first == True):
-            for t in [2,1,0]:
-                v[t+1]=v[t]
-
-            v[0] = counter
-            counter = 0
-            mean = (v[0]+v[1]+v[2]+v[3])/4
-            first = False
-        elif actualtime % 10 != 0:
-            first = True
-        #cv2.putText(image, "Blinking Mean {}".format(mean), (20, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (138, 25, 0), 2)
-
-
-        ##################################################################################################################################
-        # Y A W N    D E T E C T I O N
-        ##################################################################################################################################
-
-        yawning_detection(shape)
-
-        frameCounter += 1
-        if (actualtime - tick) >= 1:
-            tick += 1
-            fps = frameCounter
-            frameCounter = 0
-
-        ##################################################################################################################################
-        # P E R C L O S   D E T E C T I O N
-        ##################################################################################################################################
-        perclos(ear, fps, actualtime)
-
 
 
         ##################################################################################################################################
         # F A C E    R E C O G N I T I O N
         ##################################################################################################################################
         numa = numa +1
-        if (numa % 5 == 0):
+        if (numa % 1 == 0):
             test_data = []
 
 
             grayl = gray[y1:y1+h1,x1:x1+w1]
 
-            # BOOOOOOORRRRRRRRAAAAAAARRRRRRRRR
-            # cv2.imshow('image', grayl)
-            # cv2.imwrite('messigray.png', grayl)
-            # cv2.waitKey(0)
-            # cv2.destroyAllWindows()
-            k = "../Alex/file_" + str(numa) + ".png"
+
+            k = "../Victor/fiile_" + str(numa) + ".png"
             cv2.imwrite(k, grayl)
 
 
-            pixelx = 150 #266
-            pixely = 200 #266
+            pixelx = 250 #266
+            pixely = 250 #266
 
             imq = scipy.misc.imresize(grayl, (pixelx, pixely), interp='bilinear', mode=None)
             clahe_image = clahe.apply(imq)
@@ -390,25 +223,12 @@ while(True):
             else:
                 test_data.append(data['landmarks_vectorised'])
 
-            # R E D U C I R     C A R A C T E R I S T I C A S   C O N   P C A
-            pca = joblib.load('pca.pkl')
-            test_data = pca.transform(test_data)
-
-            npar_train = np.array(test_data)
-            prediction_probs = clf.predict_proba(npar_train)
-            prediction = clf.predict(npar_train)
-            #print('Probabilities', prediction_probs)
-            #print "\nBienvenido al coche ", emotions[numpy.argmax(prediction_probs)]
-
-
-        cv2.putText(image, "Welcome to the car #{}".format(emotions[numpy.argmax(prediction_probs)]), (20, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 100, 255), 2)
 
             #------------------------------------------------------------------------------------------------------------
 
 
 
 
-    cv2.putText(image, "UPC-Lear Corporation", (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 0, 0),2)
     # Display the resulting frame and press q to exit
     cv2.imshow('frame',image)
     if cv2.waitKey(1) & 0xFF == ord('q'):

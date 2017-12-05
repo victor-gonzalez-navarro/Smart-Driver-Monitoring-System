@@ -42,7 +42,7 @@ data = {}  # Make dictionary for all values
 ##################################################################################################################################
 
 def get_files(emotion):  # Define function to get file list, randomly shuffle it and split 80/20
-    files = glob.glob("dataset3//%s//*" % emotion)
+    files = glob.glob("dataset4//%s//*" % emotion)
     random.shuffle(files)
     training = files[:int(len(files) * 0.8)]  # get first 80% of file list
     prediction = files[-int(len(files) * 0.2):]  # get last 20% of file list

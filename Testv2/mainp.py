@@ -10,7 +10,6 @@
 import time
 import pygame
 import cv2
-import math
 import numpy as np
 import dlib
 from sklearn.externals import joblib
@@ -178,9 +177,9 @@ def perclos(ear,fps,actualtime):
 
 
 
-##################################################################################################################################
+########################################################################################################################
                 # M A I N   P R O G R A M
-##################################################################################################################################
+########################################################################################################################
 
 
 
@@ -226,7 +225,8 @@ consecutive_frames = 0
 # For the resize image:
 ##########################################
 # Si lo cambio, cambia h1 e w1!
-cf = 2
+cfx = 2
+cfy = 2
 ##########################################
 
 # Variables for face rec----------------
@@ -289,8 +289,9 @@ while(True):
     ret, image = cap.read()
 
     # resize to be able to run in real-time
-    imagemod = cv2.resize(image, (0,0), fx=1/float(cf), fy=1/float(cf))
+    imagemod = cv2.resize(image, (0,0), fx=1/float(cfx), fy=1/float(cfy))
     # RGB -> B&W
+
     gray = cv2.cvtColor(imagemod, cv2.COLOR_BGR2GRAY)
 
     # detector of the faces in the grayscale frame
@@ -322,20 +323,24 @@ while(True):
         # print(h1)
 
         if y1 < 0:
-            y1=1
+            y1 = 1
         if h1 < 0:
             h1 = 1
+        if x1 < 0:
+            x1 = 1
+        if w1 < 0:
+            w1 = 1
 
         # draw the face bounding box
         # parameters: image, one vertex, opposite vertex, color, thickness
-        cv2.rectangle(image, (cf*x1, cf*y1), (cf*x1 + cf*w1, cf*y1 + cf*h1), (0, 255, 0), 2)
+        cv2.rectangle(image, (cfx*x1, cfy*y1), (cfx*x1 + cfx*w1, cfy*y1 + cfy*h1), (0, 255, 0), 2)
 
         # show the face number
-        cv2.putText(image, "Face #{}".format(i+1), (cf*x1 - 10, cf*y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        cv2.putText(image, "Face #{}".format(i+1), (cfx*x1 - 10, cfy*y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
         # loop over the (x, y)-coordinates for the facial landmarks and draw a point on the image
         for (x, y) in shape:
-            cv2.circle(image, (cf*x, cf*y), 2, (0, 0, 255), -1)
+            cv2.circle(image, (cfx*x, cfy*y), 2, (0, 0, 255), -1)
 
 
         ################################################################################################################
@@ -362,7 +367,7 @@ while(True):
         # B L I N K I N G     F R E Q U E N C Y  (not used yet)
         ################################################################################################################
 
-        cv2.putText(image, "Time {}".format(actualtime), (20, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        #cv2.putText(image, "Time {}".format(actualtime), (20, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
         if (actualtime % 10 == 0) and first:
             for t in [2,1,0]:
                 v[t+1]=v[t]
@@ -403,13 +408,10 @@ while(True):
         numa = numa +1
         frameact = 1
         #if (numa % 5 == 0):
-        if((frameant == 0 and frameact ==1 )or numa % 10 == 0):
+        if((frameant == 0 and frameact ==1 )or (numa % 10 == 0)):
             test_data = []
             # Set a rectangle instead of a square in order to get better the face
             grayl = gray[y1:y1+h1,x1:x1+w1]
-
-            # k = "../Fotos/file_" + str(numa) + ".png"
-            # cv2.imwrite(k, grayl)
 
             pixelx = 250 #266
             pixely = 250 #266
@@ -419,6 +421,9 @@ while(True):
             clahe_image = clahe.apply(imq)
 
             prediction_probs, prediction,test_data = face_recognition(clahe_image, test_data)
+
+            cv2.putText(image, "New Information", (30, 350),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
 
             # print(numpy.argmax(prediction_probs))
             # for t in [8, 7, 6, 5, 4, 3, 2, 1, 0]:
@@ -434,7 +439,7 @@ while(True):
 
         cv2.putText(image, "Welcome to the car #{}".format(emotions[numpy.argmax(prediction_probs)]), (20, 300), cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 100, 255), 2)
 
-            #------------------------------------------------------------------------------------------------------------
+            #-----------------------------------------------------------------------------------------------------------
 
 
 
