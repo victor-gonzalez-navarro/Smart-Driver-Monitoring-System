@@ -64,6 +64,7 @@ def blinking_and_alert(shape, blinking_counter, eyelid_down, consecutive_frames)
 
     #Calculate the Eye Aspect Ratio
     ear = (left_ear + right_ear) / 2
+    print ear
     if ear < 0.2 and not eyelid_down:
         eyelid_down = True
         blinking_counter += 1
@@ -234,6 +235,28 @@ while(True):
     # Capture frame-by-frame
     ret, image = cap.read()
 
+    # ---------------------------------------------------------------------------------------
+    # Load two images
+    img1 = image
+    img2 = cv2.imread('Dir/small.png')
+    # I want to put logo on top-left corner, So I create a ROI
+    rows, cols, channels = img2.shape
+    roi = img1[0:rows, 0:cols]
+    # Now create a mask of logo and create its inverse mask also
+    img2gray = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+    ret, mask = cv2.threshold(img2gray, 10, 255, cv2.THRESH_BINARY)
+    mask_inv = cv2.bitwise_not(mask)
+    # Now black-out the area of logo in ROI
+    img1_bg = cv2.bitwise_and(roi, roi, mask=mask_inv)
+    # Take only region of logo from logo image.
+    img2_fg = cv2.bitwise_and(img2, img2, mask=mask)
+    # Put logo in ROI and modify the main image
+    dst = cv2.add(img1_bg, img2_fg)
+    img1[5:5 + rows, 5:5 + cols] = dst
+    image = img1
+    # ---------------------------------------------------------------------------------------
+
+
     # resize to be able to run in real-time
     imagemod = cv2.resize(image, (0,0), fx=1/float(cf), fy=1/float(cf))
     gray = cv2.cvtColor(imagemod, cv2.COLOR_BGR2GRAY)
@@ -339,9 +362,9 @@ while(True):
             cv2.putText(image, "PERCLOS #{}".format(perClos), (20, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2, 16)
             cv2.putText(image, "Blinking Counter #{}".format(blinking_counter), (20, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 100, 255), 2)
             cv2.putText(image, "Yawn Counter #{}".format(yawn_counter), (20, 250), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2, 16)
-            cv2.putText(image, "Drowsiness State: ALERT", (20, 300), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2)
+            cv2.putText(image, "Drowsiness State: ALERT", (20, 600), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2)
 
-            if (blinking_counter > 30) or (yawn_counter >= 1) or (perClos > 0.4):
+            if (blinking_counter > 30) or (yawn_counter >= 1) or (perClos > 0.55):
                 drowsiness_state = SOME_SIGNS_OF_SLEEPINESS
 
             elif consecutive_frames > MAX_CONSECUTIVE_FRAMES:
@@ -349,13 +372,13 @@ while(True):
 
         elif drowsiness_state == SOME_SIGNS_OF_SLEEPINESS:
 
-            cv2.putText(image, "Drowsiness State: SOME SIGNS OF SLEEPINESS", (20, 300), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2)
+            cv2.putText(image, "Drowsiness State: SOME SIGNS OF SLEEPINESS", (20, 600), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2)
             cv2.putText(image, "PERCLOS #{}".format(perClos), (20, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2, 16)
 
-            if (perClos > 0.5) or (consecutive_frames > MAX_CONSECUTIVE_FRAMES):
+            if (perClos > 0.75) or (consecutive_frames > MAX_CONSECUTIVE_FRAMES):
                 drowsiness_state = SLEEPY
 
-            elif perClos < 0.15:
+            elif perClos < 0.25 and perClos != 0:
                 drowsiness_state = ALERT
                 yawn_counter = 0
                 blinking_counter = 0
@@ -370,7 +393,7 @@ while(True):
             perClos = 0
 
 
-    cv2.putText(image, "UPC-Lear Corporation", (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 0, 0),2)
+    # cv2.putText(image, "UPC-Lear Corporation", (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 0, 0),2)
     # Display the resulting frame and press q to exit
     cv2.imshow('frame',image)
     if cv2.waitKey(1) & 0xFF == ord('q'):

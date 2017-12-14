@@ -364,7 +364,7 @@ while(True):
             cv2.putText(image, "Yawn Counter #{}".format(yawn_counter), (20, 250), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2, 16)
             cv2.putText(image, "Drowsiness State: ALERT", (20, 600), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2)
 
-            if (blinking_counter > 30) or (yawn_counter >= 1) or (perClos > 0.6):
+            if (blinking_counter > 30) or (yawn_counter >= 1) or (perClos > 0.55):
                 drowsiness_state = SOME_SIGNS_OF_SLEEPINESS
 
             elif consecutive_frames > MAX_CONSECUTIVE_FRAMES:
@@ -375,10 +375,10 @@ while(True):
             cv2.putText(image, "Drowsiness State: SOME SIGNS OF SLEEPINESS", (20, 600), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2)
             cv2.putText(image, "PERCLOS #{}".format(perClos), (20, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2, 16)
 
-            if (perClos > 0.8) or (consecutive_frames > MAX_CONSECUTIVE_FRAMES):
+            if (perClos > 0.75) or (consecutive_frames > MAX_CONSECUTIVE_FRAMES):
                 drowsiness_state = SLEEPY
 
-            elif perClos < 0.15:
+            elif perClos < 0.25 and perClos != 0:
                 drowsiness_state = ALERT
                 yawn_counter = 0
                 blinking_counter = 0
